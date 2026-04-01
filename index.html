@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Верификация — BERSERK</title>
+    
+    <meta property="og:title" content="BERSERK — Верификация">
+    <meta property="og:description" content="Проверка подлинности сертификатов и ваучеров учебного центра BERSERK">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://verify.berserk.com.pl/">
+    <meta property="og:image" content="https://thb.tildacdn.net/tild3265-3038-4437-a265-623738326135/-/resize/400x/Berserk_logo.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-card: #111111;
+            --bg-card-inner: #1a1a1a;
+            --border: #2a2a2a;
+            --border-accent: #c8a45a;
+            --text-primary: #e8e8e8;
+            --text-secondary: #888888;
+            --text-accent: #c8a45a;
+            --text-accent-hover: #dbb96a;
+            --status-active: #22c55e;
+            --status-used: #f59e0b;
+            --status-expired: #ef4444;
+            --status-active-bg: rgba(34, 197, 94, 0.1);
+            --status-used-bg: rgba(245, 158, 11, 0.1);
+            --status-expired-bg: rgba(239, 68, 68, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Source Sans 3', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(200,164,90,0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(200,164,90,0.02) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 640px;
+            padding: 24px 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            padding: 32px 0 24px;
+        }
+
+        .header__logo {
+            height: 64px;
+            margin-bottom: 8px;
+            filter: brightness(1.1);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .header__logo:hover {
+            opacity: 0.8;
+            transform: scale(1.03);
+        }
+
+        .header__link {
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .header__subtitle {
+            font-family: 'Oswald', sans-serif;
+            font-size: 11px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            font-weight: 400;
+            transition: color 0.2s;
+        }
+
+        .header__link:hover .header__subtitle {
+            color: var(--text-accent);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 24px;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card__header {
+            background: var(--bg-card-inner);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card__type {
+            font-family: 'Oswald', sans-serif;
+            font-size: 13px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .card__status {
+            font-family: 'Oswald', sans-serif;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 2px;
+            font-weight: 600;
+        }
+
+        .card__status--active {
+            color: var(--status-active);
+            background: var(--status-active-bg);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .card__status--used {
+            color: var(--status-used);
+            background: var(--status-used-bg);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .card__status--expired {
+            color: var(--status-expired);
+            background: var(--status-expired-bg);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .card__body {
+            padding: 32px 24px;
+        }
+
+        .card__name {
+            font-family: 'Oswald', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            line-height: 1.2;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+        }
+
+        .card__divider {
+            width: 48px;
+            height: 2px;
+            background: var(--border-accent);
+            margin-bottom: 24px;
+        }
+
+        .card__details {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .detail {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail__label {
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .detail__value {
+            font-size: 16px;
+            color: var(--text-primary);
+            font-weight: 400;
+        }
+
+        .detail__value--accent {
+            color: var(--text-accent);
+            font-weight: 600;
+        }
+
+        .detail__value--large {
+            font-family: 'Oswald', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-accent);
+        }
+
+        .detail__value--warn {
+            color: var(--status-used);
+        }
+
+        .card__actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            padding: 0 24px 24px;
+        }
+
+        .btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 16px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 600;
+            border: none;
+            border-radius: 2px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn--primary {
+            background: var(--border-accent);
+            color: #0a0a0a;
+        }
+
+        .btn--primary:hover {
+            background: var(--text-accent-hover);
+        }
+
+        .btn--secondary {
+            background: transparent;
+            color: var(--text-accent);
+            border: 1px solid var(--border-accent);
+        }
+
+        .btn--secondary:hover {
+            background: rgba(200, 164, 90, 0.1);
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .card__seal {
+            text-align: center;
+            padding: 0 24px 28px;
+        }
+
+        .seal {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .seal svg {
+            width: 16px;
+            height: 16px;
+            color: var(--status-active);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 80px 24px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .loading__spinner {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--border);
+            border-top-color: var(--border-accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading__text {
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .error {
+            text-align: center;
+            padding: 60px 24px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .error__icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+
+        .error__title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .error__text {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .search-form {
+            margin-top: 48px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .search-form__title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .search-form__desc {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .search-form__input-wrap {
+            display: flex;
+            gap: 8px;
+        }
+
+        .search-form__input {
+            flex: 1;
+            padding: 14px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            color: var(--text-primary);
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-form__input::placeholder { color: var(--text-secondary); }
+        .search-form__input:focus { border-color: var(--border-accent); }
+
+        .search-form__btn {
+            padding: 14px 20px;
+            background: var(--border-accent);
+            color: #0a0a0a;
+            border: none;
+            border-radius: 2px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-form__btn:hover { background: var(--text-accent-hover); }
+
+        .search-form__hint {
+            margin-top: 12px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+
+        .footer {
+            margin-top: auto;
+            padding: 32px 0;
+            text-align: center;
+        }
+
+        .footer__link {
+            font-family: 'Oswald', sans-serif;
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer__link:hover { color: var(--text-accent); }
+
+        .footer__copy {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            opacity: 0.5;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-card);
+            border: 1px solid var(--border-accent);
+            color: var(--text-primary);
+            padding: 12px 24px;
+            border-radius: 2px;
+            font-size: 13px;
+            letter-spacing: 1px;
+            z-index: 100;
+            transition: transform 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .toast--visible { transform: translateX(-50%) translateY(0); }
+
+        @media (max-width: 480px) {
+            .card__name { font-size: 26px; }
+            .detail__value--large { font-size: 24px; }
+            .card__actions { flex-direction: column; }
+            .search-form__input-wrap { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <a href="https://berserk.com.pl/" class="header__link" title="Перейти на berserk.com.pl">
+                <img src="https://thb.tildacdn.net/tild3265-3038-4437-a265-623738326135/-/resize/400x/Berserk_logo.png" alt="BERSERK" class="header__logo">
+                <div class="header__subtitle">Centrum rozwoju i bezpieczeństwa</div>
+            </a>
+        </header>
+
+        <main id="app"></main>
+
+        <footer class="footer">
+            <a href="https://berserk.com.pl/" class="footer__link">&larr; Перейти на berserk.com.pl</a>
+            <div class="footer__copy">&copy; 2023–2026. Все права защищены</div>
+        </footer>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+    // ==========================================================
+    // КОНФИГУРАЦИЯ — замените на свой URL Google Apps Script
+    // ==========================================================
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwe2ZV000vGiV5WkVBS9r2T6xnT5wsoB_pMsrCW427f4zSm3wad86j-JI5Wcpec0Kj-/exec';
+    // ==========================================================
+
+    const app = document.getElementById('app');
+    const toastEl = document.getElementById('toast');
+
+    function showToast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add('toast--visible');
+        setTimeout(() => toastEl.classList.remove('toast--visible'), 2500);
+    }
+
+    function esc(s) {
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+
+    function getIdFromUrl() {
+        return new URLSearchParams(window.location.search).get('id');
+    }
+
+    function showLoading() {
+        app.innerHTML = '<div class="loading"><div class="loading__spinner"></div><div class="loading__text">Проверка...</div></div>';
+    }
+
+    function showError(title, text) {
+        app.innerHTML = '<div class="error"><div class="error__icon">&#10005;</div><div class="error__title">' + title + '</div><div class="error__text">' + text + '</div></div>';
+    }
+
+    function showSearchForm() {
+        app.innerHTML = `
+            <div class="search-form">
+                <div class="search-form__title">Верификация</div>
+                <div class="search-form__desc">Введите идентификатор сертификата или ваучера<br>для проверки подлинности</div>
+                <div class="search-form__input-wrap">
+                    <input type="text" id="idInput" class="search-form__input" placeholder="BRS-4a9c2f8e или VCH-7b3e1d9a">
+                    <button onclick="doSearch()" class="search-form__btn">Проверить</button>
+                </div>
+                <div class="search-form__hint">BRS — сертификат &nbsp;|&nbsp; VCH — ваучер</div>
+            </div>`;
+        document.getElementById('idInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+    }
+
+    function doSearch() {
+        const id = document.getElementById('idInput').value.trim();
+        if (!id) return;
+        window.location.href = '?id=' + encodeURIComponent(id);
+    }
+
+    function doShare() {
+        const url = window.location.href;
+        if (navigator.share) {
+            navigator.share({ title: document.title, text: 'Верификация — BERSERK', url }).catch(() => {});
+        } else {
+            navigator.clipboard.writeText(url).then(() => showToast('Ссылка скопирована')).catch(() => showToast('Не удалось скопировать'));
+        }
+    }
+
+    // ==================== СЕРТИФИКАТ ====================
+    function renderCertificate(d) {
+        const active = (d.status || '').toLowerCase() === 'активный';
+        document.title = 'Сертификат — ' + d.name + ' — BERSERK';
+
+        app.innerHTML = `
+        <div class="card">
+            <div class="card__header">
+                <div class="card__type">Сертификат</div>
+                <div class="card__status ${active ? 'card__status--active' : 'card__status--expired'}">${active ? 'Действителен' : 'Недействителен'}</div>
+            </div>
+            <div class="card__body">
+                <div class="card__name">${esc(d.name)}</div>
+                <div class="card__divider"></div>
+                <div class="card__details">
+                    <div class="detail"><div class="detail__label">Программа обучения</div><div class="detail__value">${esc(d.course || '—')}</div></div>
+                    <div class="detail"><div class="detail__label">Дата окончания курса</div><div class="detail__value">${esc(d.date || '—')}</div></div>
+                    <div class="detail"><div class="detail__label">Номер сертификата</div><div class="detail__value detail__value--accent">${esc(d.id)}</div></div>
+                </div>
+            </div>
+            <div class="card__actions">
+                <button class="btn btn--primary" onclick="doShare()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                    Поделиться
+                </button>
+                ${d.pdfUrl ? '<a class="btn btn--secondary" href="' + esc(d.pdfUrl) + '" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Скачать PDF</a>' : ''}
+            </div>
+            <div class="card__seal"><div class="seal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Подлинность подтверждена — BERSERK Centrum
+            </div></div>
+        </div>`;
+    }
+
+    // ==================== ВАУЧЕР ====================
+    function renderVoucher(d) {
+        const st = (d.status || '').toLowerCase();
+        let sCls, sTxt;
+        if (st === 'активный') { sCls = 'card__status--active'; sTxt = 'Активен'; }
+        else if (st === 'использован') { sCls = 'card__status--used'; sTxt = 'Использован'; }
+        else { sCls = 'card__status--expired'; sTxt = 'Истёк'; }
+
+        document.title = 'Подарочный ваучер — BERSERK';
+
+        let expiryClass = '';
+        if (d.validUntil) {
+            const p = d.validUntil.split('.');
+            if (p.length === 3) {
+                const days = Math.ceil((new Date(p[2], p[1]-1, p[0]) - new Date()) / 86400000);
+                if (days >= 0 && days <= 14) expiryClass = ' detail__value--warn';
+            }
+        }
+
+        app.innerHTML = `
+        <div class="card">
+            <div class="card__header">
+                <div class="card__type">Подарочный ваучер</div>
+                <div class="card__status ${sCls}">${sTxt}</div>
+            </div>
+            <div class="card__body">
+                <div class="card__details">
+                    <div class="detail"><div class="detail__label">Номинал / Программа</div><div class="detail__value detail__value--large">${esc(d.nominal || '—')}</div></div>
+                    <div class="card__divider"></div>
+                    <div class="detail"><div class="detail__label">Кому подарен</div><div class="detail__value">${esc(d.recipient || '—')}</div></div>
+                    <div class="detail"><div class="detail__label">Действителен до</div><div class="detail__value${expiryClass}">${esc(d.validUntil || '—')}</div></div>
+                    <div class="detail"><div class="detail__label">Номер ваучера</div><div class="detail__value detail__value--accent">${esc(d.id)}</div></div>
+                </div>
+            </div>
+            <div class="card__actions">
+                <button class="btn btn--primary" onclick="doShare()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                    Поделиться
+                </button>
+                <a class="btn btn--secondary" href="https://berserk.com.pl/vauchery" target="_blank">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    О ваучерах
+                </a>
+            </div>
+            <div class="card__seal"><div class="seal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Подлинность подтверждена — BERSERK Centrum
+            </div></div>
+        </div>`;
+    }
+
+    // ==================== MAIN ====================
+    async function init() {
+        const id = getIdFromUrl();
+        if (!id) { showSearchForm(); return; }
+
+        showLoading();
+
+        try {
+            const res = await fetch(APPS_SCRIPT_URL + '?id=' + encodeURIComponent(id));
+            const data = await res.json();
+
+            if (data.error) {
+                showError('Не найдено', 'Указанный идентификатор не зарегистрирован в системе. Проверьте правильность ввода.');
+                return;
+            }
+
+            if (data.type === 'voucher') renderVoucher(data);
+            else renderCertificate(data);
+
+        } catch (err) {
+            showError('Ошибка соединения', 'Не удалось выполнить проверку. Попробуйте позже.');
+            console.error(err);
+        }
+    }
+
+    init();
+    </script>
+</body>
+</html>
